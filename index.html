@@ -114,9 +114,9 @@
 
     .main-grid{
       display:grid;
-      grid-template-columns:1.15fr .95fr;
-      gap:14px;
-      align-items:start;
+      grid-template-columns:1.34fr .86fr;
+      gap:16px;
+      align-items:stretch;
     }
 
     .card{
@@ -125,6 +125,12 @@
       border-radius:24px;
       box-shadow:var(--shadow);
       padding:16px;
+    }
+
+    #leftCard{
+      display:flex;
+      flex-direction:column;
+      min-height:100%;
     }
 
     .type-badge{
@@ -158,12 +164,19 @@
       margin-bottom:14px;
     }
 
-    .model-area{display:grid;gap:14px}
+    .model-area{
+      display:grid;
+      gap:10px;
+      align-content:start;
+      padding-bottom:34px;
+      flex:1;
+      margin-top:35px;
+    }
     .model-row{
       display:grid;
       grid-template-columns:minmax(88px,110px) 1fr;
       gap:10px;
-      align-items:start;
+      align-items:center;
     }
     .row-label{
       min-height:48px;
@@ -175,18 +188,25 @@
       font-weight:700;
       padding:10px 8px;
       border:2px solid rgba(0,0,0,.08);
+      margin-top:26px;
+      align-self:start;
     }
     .row-label.top{background:var(--pink)}
     .row-label.bottom{background:var(--blue)}
 
-    .drop-shell{display:grid;gap:8px;position:relative}
-    .annot-wrap{position:relative;padding-top:42px;padding-bottom:42px;min-height:148px}
+    .drop-shell{display:grid;gap:0;position:relative}
+    .annot-wrap{
+      position:relative;
+      padding-top:30px;
+      padding-bottom:34px;
+      min-height:134px;
+    }
     .drop-zone{
-      min-height:64px;
+      min-height:68px;
       background:#fbfdf8;
       border:3px dashed #c8ddbc;
       border-radius:16px;
-      padding:10px;
+      padding:12px 10px;
       display:flex;
       align-items:center;
       gap:0;
@@ -196,7 +216,7 @@
     .drop-zone.over{outline:4px solid rgba(123,190,95,.18);border-color:#7fc05f;background:#f4fee8}
     .drop-zone.wrong{border-color:#efabab;background:#fff7f7}
     .drop-zone.right{border-color:#9bd56e;background:#f6fff0}
-    .row-helper{font-size:14px;color:var(--soft)}
+    .row-helper{display:none}
     .label-target{
       position:absolute;
       width:56px;min-width:56px;height:28px;min-height:28px;
@@ -423,7 +443,7 @@
       .page{padding:12px 10px 18px}
       .hero,.card{padding:14px}
       .model-row{grid-template-columns:1fr;gap:8px}
-      .row-label{min-height:40px;font-size:18px}
+      .row-label{min-height:40px;font-size:18px;margin-top:0}
       .eq-line{font-size:18px}
       .blank{width:72px;min-width:72px;height:40px;font-size:19px}
       .palette-unit,.ghost-unit{width:78px;height:50px}
@@ -950,8 +970,12 @@
       const q = currentQuestion();
       const config = getLabelConfig(q);
       if(!config) return;
-      positionLabelAndBrace(topLabelTarget, topBrace, dropTop, q.expectedTopUnits, 'top', 'top');
-      positionLabelAndBrace(bottomLabelTarget, bottomBrace, dropBottom, q.expectedBottomUnits, 'bottom', 'bottom');
+
+      const liveTopUnits = Math.max(modelState.top, 1);
+      const liveBottomUnits = Math.max(modelState.bottom, 1);
+
+      positionLabelAndBrace(topLabelTarget, topBrace, dropTop, liveTopUnits, 'top', 'top');
+      positionLabelAndBrace(bottomLabelTarget, bottomBrace, dropBottom, liveBottomUnits, 'bottom', 'bottom');
     }
 
     function renderLabelTargets(){
@@ -972,8 +996,14 @@
       labelToolHelp.textContent = config.help || '';
       topLabelTarget.classList.add('show');
       bottomLabelTarget.classList.add('show');
-      topBrace.classList.add('show');
-      bottomBrace.classList.add('show');
+
+      if(modelState.top > 0){
+        topBrace.classList.add('show');
+      }
+      if(modelState.bottom > 0){
+        bottomBrace.classList.add('show');
+      }
+
       if(labelState.top){
         topLabelTarget.innerHTML = `<span class="placed-tag">${config.topText}</span>`;
         topLabelTarget.classList.add('filled');
